@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.jobs import router as jobs_router
 from app.routes.webhooks import router as webhooks_router
+import os
 
 app = FastAPI(
     title="WhatsApp Agent Dispatch & Inspection Notification System",
@@ -28,7 +29,53 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {"status": "healthy", "message": "System is running"}
+
+@app.get("/debug")
+async def debug_info():
+    """Debug endpoint to check environment variables and database connection."""
+    try:
+        from app.services.database import db_service
+        
+        # Check environment variables
+        mongo_uri = os.getenv("MONGODB_URI", "NOT_SET")
+        mongo_db_name = os.getenv("MONGODB_DB_NAME", "NOT_SET")
+        twilio_account_sid = os.getenv("TWILIO_ACCOUNT_SID", "NOT_SET")
+        twilio_auth_token = os.getenv("TWILIO_AUTH_TOKEN", "NOT_SET")
+        twilio_whatsapp_number = os.getenv("TWILIO_WHATSAPP_NUMBER", "NOT_SET")
+        
+        # Check database connection
+        db_connected = db_service.db is not None
+        db_name = db_service.db.name if db_service.db else "NOT_CONNECTED"
+        
+        # Test database operations
+        test_doc = {"test": "debug", "timestamp": "2025-08-11"}
+        insert_result = db_service.insert_document("debug_test", test_doc)
+        find_result = db_service.find_documents("debug_test", {"test": "debug"})
+        
+        return {
+            "environment": {
+                "MONGODB_URI": mongo_uri[:20] + "..." if len(mongo_uri) > 20 else mongo_uri,
+                "MONGODB_DB_NAME": mongo_db_name,
+                "TWILIO_ACCOUNT_SID": twilio_account_sid[:10] + "..." if len(twilio_account_sid) > 10 else twilio_account_sid,
+                "TWILIO_AUTH_TOKEN": "SET" if twilio_auth_token != "NOT_SET" else "NOT_SET",
+                "TWILIO_WHATSAPP_NUMBER": twilio_whatsapp_number
+            },
+            "database": {
+                "connected": db_connected,
+                "database_name": db_name,
+                "test_insert": "SUCCESS" if insert_result else "FAILED",
+                "test_find": f"FOUND {len(find_result)} DOCUMENTS"
+            }
+        }
+    except Exception as e:
+        return {
+            "error": str(e),
+            "environment": {
+                "MONGODB_URI": os.getenv("MONGODB_URI", "NOT_SET"),
+                "MONGODB_DB_NAME": os.getenv("MONGODB_DB_NAME", "NOT_SET")
+            }
+        }
 
 if __name__ == "__main__":
     import uvicorn
