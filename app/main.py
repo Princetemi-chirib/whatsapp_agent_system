@@ -46,12 +46,21 @@ async def debug_info():
         
         # Check database connection
         db_connected = db_service.db is not None
-        db_name = db_service.db.name if db_service.db else "NOT_CONNECTED"
+        db_name = db_service.db.name if db_service.db is not None else "NOT_CONNECTED"
         
-        # Test database operations
-        test_doc = {"test": "debug", "timestamp": "2025-08-11"}
-        insert_result = db_service.insert_document("debug_test", test_doc)
-        find_result = db_service.find_documents("debug_test", {"test": "debug"})
+        # Test database operations (only if connected)
+        test_insert = "NOT_TESTED"
+        test_find = "NOT_TESTED"
+        if db_service.db is not None:
+            try:
+                test_doc = {"test": "debug", "timestamp": "2025-08-11"}
+                insert_result = db_service.insert_document("debug_test", test_doc)
+                find_result = db_service.find_documents("debug_test", {"test": "debug"})
+                test_insert = "SUCCESS" if insert_result else "FAILED"
+                test_find = f"FOUND {len(find_result)} DOCUMENTS"
+            except Exception as db_error:
+                test_insert = f"ERROR: {str(db_error)}"
+                test_find = "ERROR"
         
         return {
             "environment": {
@@ -64,8 +73,8 @@ async def debug_info():
             "database": {
                 "connected": db_connected,
                 "database_name": db_name,
-                "test_insert": "SUCCESS" if insert_result else "FAILED",
-                "test_find": f"FOUND {len(find_result)} DOCUMENTS"
+                "test_insert": test_insert,
+                "test_find": test_find
             }
         }
     except Exception as e:
