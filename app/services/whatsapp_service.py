@@ -68,7 +68,6 @@ Address: {property_details.get('address', 'N/A')}
 Type: {property_details.get('property_type', 'N/A')}
 Bedrooms: {property_details.get('bedrooms', 'N/A')}
 Bathrooms: {property_details.get('bathrooms', 'N/A')}
-Price: ${property_details.get('price', 'N/A'):,.2f}
 
 Inspection Date: {inspection_date}
 Inspection Time: {inspection_time}
