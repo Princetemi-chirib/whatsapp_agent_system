@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.jobs import router as jobs_router
 from app.routes.webhooks import router as webhooks_router
+from app.services.scheduler import scheduler_service
 import os
 
 app = FastAPI(
@@ -22,6 +23,9 @@ app.add_middleware(
 # Include routers
 app.include_router(jobs_router, prefix="/api/jobs", tags=["jobs"])
 app.include_router(webhooks_router, prefix="/api/webhooks", tags=["webhooks"])
+
+# Initialize scheduler service
+scheduler_service.start()
 
 @app.get("/")
 async def root():
@@ -85,6 +89,11 @@ async def debug_info():
                 "MONGODB_DB_NAME": os.getenv("MONGODB_DB_NAME", "NOT_SET")
             }
         }
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Shutdown event to stop the scheduler."""
+    scheduler_service.stop()
 
 if __name__ == "__main__":
     import uvicorn
