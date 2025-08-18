@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.routes.jobs import router as jobs_router
 from app.routes.webhooks import router as webhooks_router
 from app.routes.agents import router as agents_router
@@ -25,9 +26,18 @@ app.include_router(jobs_router, prefix="/api/jobs", tags=["jobs"])
 app.include_router(webhooks_router, prefix="/api/webhooks", tags=["webhooks"])
 app.include_router(agents_router, prefix="/api/agents", tags=["agents"])
 
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 @app.get("/")
 async def root():
-    return {"message": "WhatsApp Agent Dispatch & Inspection Notification System API"}
+    from fastapi.responses import FileResponse
+    return FileResponse("static/index.html")
+
+@app.get("/admin")
+async def admin():
+    from fastapi.responses import FileResponse
+    return FileResponse("static/index.html")
 
 @app.get("/health")
 async def health_check():
