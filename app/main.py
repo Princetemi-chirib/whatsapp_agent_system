@@ -43,6 +43,10 @@ async def admin():
 async def health_check():
     return {"status": "healthy", "message": "System is running"}
 
+@app.get("/api/test")
+async def test_api():
+    return {"message": "API is working!", "timestamp": "2025-01-11"}
+
 @app.get("/debug")
 async def debug_info():
     """Debug endpoint to check environment variables and database connection."""
