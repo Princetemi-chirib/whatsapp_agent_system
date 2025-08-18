@@ -47,6 +47,9 @@ async def create_agent(agent: AgentCreate):
         else:
             raise HTTPException(status_code=500, detail="Failed to create agent")
     except Exception as e:
+        print(f"Error in create_agent: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/", response_model=List[AgentResponse])
@@ -54,8 +57,15 @@ async def get_agents():
     """Get all agents."""
     try:
         agents = db_service.find_documents("agents", {})
+        # Ensure each agent has the required 'id' field
+        for agent in agents:
+            if '_id' in agent and 'id' not in agent:
+                agent['id'] = agent['_id']
         return agents
     except Exception as e:
+        print(f"Error in get_agents: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{agent_id}", response_model=AgentResponse)

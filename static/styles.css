@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     min-height: 100vh;
     color: #333;
     line-height: 1.6;
@@ -34,9 +34,13 @@ body {
     margin-bottom: 10px;
 }
 
-.logo i {
-    font-size: 2.5rem;
-    color: #ffd700;
+.logo-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ffd700;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 .logo h1 {
@@ -78,7 +82,7 @@ body {
 }
 
 .form-container h2 i {
-    color: #667eea;
+    color: #ff8c42;
 }
 
 /* Form styles */
@@ -117,9 +121,9 @@ input, select {
 
 input:focus, select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #ff8c42;
     background: white;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
 }
 
 input::placeholder {
@@ -151,7 +155,7 @@ input::placeholder {
 .checkbox-label input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: #667eea;
+    accent-color: #ff8c42;
 }
 
 /* Button styles */
@@ -177,13 +181,13 @@ input::placeholder {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
     color: white;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 10px 20px rgba(255, 140, 66, 0.3);
 }
 
 .btn-secondary {
@@ -215,7 +219,7 @@ input::placeholder {
 }
 
 .agents-list h3 i {
-    color: #667eea;
+    color: #ff8c42;
 }
 
 .agents-grid {
@@ -227,7 +231,7 @@ input::placeholder {
     background: #f8f9fa;
     border-radius: 15px;
     padding: 20px;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #ff8c42;
     transition: all 0.3s ease;
 }
 
@@ -253,7 +257,7 @@ input::placeholder {
 
 .agent-details i {
     width: 16px;
-    color: #667eea;
+    color: #ff8c42;
 }
 
 .loading {
@@ -353,6 +357,11 @@ input::placeholder {
         font-size: 2rem;
     }
     
+    .logo-image {
+        width: 50px;
+        height: 50px;
+    }
+    
     .container {
         padding: 15px;
     }
@@ -370,7 +379,7 @@ input::placeholder {
     width: 20px;
     height: 20px;
     border: 3px solid #f3f3f3;
-    border-top: 3px solid #667eea;
+    border-top: 3px solid #ff8c42;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-right: 10px;
