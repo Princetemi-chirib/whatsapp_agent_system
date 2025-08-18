@@ -57,11 +57,26 @@ async def get_agents():
     """Get all agents."""
     try:
         agents = db_service.find_documents("agents", {})
-        # Ensure each agent has the required 'id' field
+        # Ensure each agent has the required 'id' field and handle missing fields
+        processed_agents = []
         for agent in agents:
-            if '_id' in agent and 'id' not in agent:
-                agent['id'] = agent['_id']
-        return agents
+            processed_agent = {
+                "agent_id": agent.get("agent_id", ""),
+                "name": agent.get("name", ""),
+                "phone": agent.get("phone", ""),
+                "email": agent.get("email", ""),
+                "status": agent.get("status", "active"),
+                "zone": agent.get("zone"),
+                "specializations": agent.get("specializations", []),
+                "experience_years": agent.get("experience_years"),
+                "rating": agent.get("rating"),
+                "total_inspections": agent.get("total_inspections"),
+                "id": str(agent.get("_id", "")),
+                "created_at": agent.get("created_at", ""),
+                "updated_at": agent.get("updated_at", "")
+            }
+            processed_agents.append(processed_agent)
+        return processed_agents
     except Exception as e:
         print(f"Error in get_agents: {str(e)}")
         import traceback
