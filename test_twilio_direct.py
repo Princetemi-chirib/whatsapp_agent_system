@@ -10,10 +10,10 @@ from twilio.rest import Client
 def test_twilio_whatsapp():
     """Test direct Twilio WhatsApp message sending."""
     
-    # Twilio credentials
+    # Twilio credentials - UPDATED
     account_sid = "AC66c9a7b9f8b5ca7f1ae1eea72ee8bda2"
-    auth_token = "bd7907b1c39e87c94d73ef2d1e391765"
-    from_number = "+14155238886"
+    auth_token = "ce4dc319eeb92f1250822f27c4b8e419"
+    from_number = "+14155238886"  # WhatsApp sandbox number
     to_number = "+2347055699437"
     
     try:
@@ -23,7 +23,7 @@ def test_twilio_whatsapp():
         # Send WhatsApp message
         message = client.messages.create(
             from_=f'whatsapp:{from_number}',
-            body='🧪 Direct Twilio Test: Testing WhatsApp message sending from Railway app',
+            body='🧪 Updated Twilio Test: Testing with new auth token and sandbox number',
             to=f'whatsapp:{to_number}'
         )
         
@@ -37,5 +37,5 @@ def test_twilio_whatsapp():
         return False
 
 if __name__ == "__main__":
-    print("Testing direct Twilio WhatsApp message...")
+    print("Testing direct Twilio WhatsApp message with new credentials...")
     test_twilio_whatsapp()
