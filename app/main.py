@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.jobs import router as jobs_router
 from app.routes.webhooks import router as webhooks_router
-from app.routes.test import router as test_router
 import os
 
 app = FastAPI(
@@ -23,7 +22,6 @@ app.add_middleware(
 # Include routers
 app.include_router(jobs_router, prefix="/api/jobs", tags=["jobs"])
 app.include_router(webhooks_router, prefix="/api/webhooks", tags=["webhooks"])
-app.include_router(test_router, prefix="/api", tags=["test"])
 
 @app.get("/")
 async def root():
