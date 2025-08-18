@@ -65,15 +65,19 @@ class DatabaseService:
                     cursor = cursor.limit(limit)
                 documents = list(cursor)
                 
-                # Convert datetime objects to ISO format strings for JSON serialization
+                # Convert datetime objects and ObjectId to strings for JSON serialization
                 for doc in documents:
                     for key, value in doc.items():
                         if hasattr(value, 'isoformat'):
                             doc[key] = value.isoformat()
+                        elif hasattr(value, '__str__') and key == '_id':
+                            doc[key] = str(value)
                 
                 return documents
         except Exception as e:
             print(f"Error finding documents: {str(e)}")
+            import traceback
+            traceback.print_exc()
         return []
     
     def find_document_by_id(self, collection_name: str, document_id: str) -> Optional[Dict]:
