@@ -6,13 +6,24 @@ const agentForm = document.getElementById('agentForm');
 const agentsList = document.getElementById('agentsList');
 const successModal = document.getElementById('successModal');
 const errorModal = document.getElementById('errorModal');
+const editModal = document.getElementById('editModal');
 const successMessage = document.getElementById('successMessage');
 const errorMessage = document.getElementById('errorMessage');
+
+// Search and filter elements
+const agentSearch = document.getElementById('agentSearch');
+const zoneFilter = document.getElementById('zoneFilter');
+const statusFilter = document.getElementById('statusFilter');
+
+// Global variables
+let allAgents = [];
+let filteredAgents = [];
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     loadAgents();
     setupFormHandling();
+    setupSearchAndFilters();
 });
 
 // Load existing agents
@@ -20,8 +31,9 @@ async function loadAgents() {
     try {
         const response = await fetch(`${API_BASE_URL}/agents/`);
         if (response.ok) {
-            const agents = await response.json();
-            displayAgents(agents);
+            allAgents = await response.json();
+            filteredAgents = [...allAgents];
+            displayAgents(filteredAgents);
         } else {
             throw new Error('Failed to load agents');
         }
@@ -34,17 +46,26 @@ async function loadAgents() {
 // Display agents in the grid
 function displayAgents(agents) {
     if (agents.length === 0) {
-        agentsList.innerHTML = '<div class="no-agents">No agents found. Add your first agent using the form!</div>';
+        agentsList.innerHTML = '<div class="no-agents">No agents found matching your search criteria.</div>';
         return;
     }
 
     const agentsHTML = agents.map(agent => `
         <div class="agent-card">
+            <div class="agent-actions">
+                <button class="agent-action-btn" onclick="editAgent('${agent.id}')" title="Edit Agent">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="agent-action-btn delete" onclick="deleteAgent('${agent.id}')" title="Delete Agent">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
             <div class="agent-name">${agent.name}</div>
             <div class="agent-details">
                 <div><i class="fas fa-id-badge"></i> ${agent.agent_id}</div>
                 <div><i class="fas fa-phone"></i> ${agent.phone}</div>
                 <div><i class="fas fa-envelope"></i> ${agent.email}</div>
+                <div><i class="fas fa-circle" style="color: ${agent.status === 'active' ? '#28a745' : '#dc3545'}"></i> ${agent.status}</div>
                 ${agent.zone ? `<div><i class="fas fa-map-marker-alt"></i> ${agent.zone}</div>` : ''}
                 ${agent.experience_years ? `<div><i class="fas fa-clock"></i> ${agent.experience_years} years experience</div>` : ''}
                 ${agent.rating ? `<div><i class="fas fa-star"></i> ${agent.rating}/5 rating</div>` : ''}
@@ -209,6 +230,138 @@ document.getElementById('phone').addEventListener('input', function() {
     }
     this.value = value;
 });
+
+// Setup search and filter functionality
+function setupSearchAndFilters() {
+    agentSearch.addEventListener('input', filterAgents);
+    zoneFilter.addEventListener('change', filterAgents);
+    statusFilter.addEventListener('change', filterAgents);
+}
+
+// Filter agents based on search and filters
+function filterAgents() {
+    const searchTerm = agentSearch.value.toLowerCase();
+    const zoneFilterValue = zoneFilter.value;
+    const statusFilterValue = statusFilter.value;
+
+    filteredAgents = allAgents.filter(agent => {
+        const matchesSearch = !searchTerm || 
+            agent.name.toLowerCase().includes(searchTerm) ||
+            agent.phone.toLowerCase().includes(searchTerm) ||
+            agent.email.toLowerCase().includes(searchTerm) ||
+            agent.agent_id.toLowerCase().includes(searchTerm);
+        
+        const matchesZone = !zoneFilterValue || agent.zone === zoneFilterValue;
+        const matchesStatus = !statusFilterValue || agent.status === statusFilterValue;
+
+        return matchesSearch && matchesZone && matchesStatus;
+    });
+
+    displayAgents(filteredAgents);
+}
+
+// Edit agent functionality
+function editAgent(agentId) {
+    const agent = allAgents.find(a => a.id === agentId);
+    if (!agent) return;
+
+    // Populate edit form
+    document.getElementById('editAgentId').value = agent.id;
+    document.getElementById('editName').value = agent.name;
+    document.getElementById('editPhone').value = agent.phone;
+    document.getElementById('editEmail').value = agent.email;
+    document.getElementById('editZone').value = agent.zone || '';
+    document.getElementById('editStatus').value = agent.status;
+    document.getElementById('editExperience').value = agent.experience_years || '';
+    document.getElementById('editRating').value = agent.rating || '';
+    document.getElementById('editInspections').value = agent.total_inspections || '';
+
+    // Show edit modal
+    editModal.style.display = 'block';
+}
+
+// Save agent edit
+async function saveAgentEdit() {
+    const agentId = document.getElementById('editAgentId').value;
+    const formData = new FormData(document.getElementById('editAgentForm'));
+    
+    const updateData = {
+        name: formData.get('name'),
+        phone: formData.get('phone'),
+        email: formData.get('email'),
+        zone: formData.get('zone') || null,
+        status: formData.get('status'),
+        experience_years: formData.get('experience_years') ? parseInt(formData.get('experience_years')) : null,
+        rating: formData.get('rating') ? parseFloat(formData.get('rating')) : null,
+        total_inspections: formData.get('total_inspections') ? parseInt(formData.get('total_inspections')) : null
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/agents/${agentId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updateData)
+        });
+
+        if (response.ok) {
+            showSuccessModal('Agent updated successfully!');
+            closeModal();
+            loadAgents(); // Reload agents
+        } else {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Failed to update agent');
+        }
+    } catch (error) {
+        console.error('Error updating agent:', error);
+        showErrorModal(`Failed to update agent: ${error.message}`);
+    }
+}
+
+// Delete agent functionality
+async function deleteAgent(agentId) {
+    if (!confirm('Are you sure you want to delete this agent? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/agents/${agentId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            showSuccessModal('Agent deleted successfully!');
+            loadAgents(); // Reload agents
+        } else {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Failed to delete agent');
+        }
+    } catch (error) {
+        console.error('Error deleting agent:', error);
+        showErrorModal(`Failed to delete agent: ${error.message}`);
+    }
+}
+
+// Update close modal function
+function closeModal() {
+    successModal.style.display = 'none';
+    errorModal.style.display = 'none';
+    editModal.style.display = 'none';
+}
+
+// Update window click handler
+window.onclick = function(event) {
+    if (event.target === successModal) {
+        successModal.style.display = 'none';
+    }
+    if (event.target === errorModal) {
+        errorModal.style.display = 'none';
+    }
+    if (event.target === editModal) {
+        editModal.style.display = 'none';
+    }
+}
 
 // Add some CSS for error states
 const style = document.createElement('style');

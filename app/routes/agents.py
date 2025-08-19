@@ -89,8 +89,51 @@ async def get_agent(agent_id: str):
     try:
         agent = db_service.find_document_by_id("agents", agent_id)
         if agent:
+            # Ensure the agent has the required 'id' field
+            if '_id' in agent and 'id' not in agent:
+                agent['id'] = str(agent['_id'])
             return agent
         else:
             raise HTTPException(status_code=404, detail="Agent not found")
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.put("/{agent_id}", response_model=AgentResponse)
+async def update_agent(agent_id: str, agent_update: AgentCreate):
+    """Update an agent."""
+    try:
+        update_data = agent_update.dict(exclude_unset=True)
+        update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+        
+        success = db_service.update_document("agents", agent_id, update_data)
+        if success:
+            # Get the updated agent
+            updated_agent = db_service.find_document_by_id("agents", agent_id)
+            if updated_agent:
+                if '_id' in updated_agent and 'id' not in updated_agent:
+                    updated_agent['id'] = str(updated_agent['_id'])
+                return updated_agent
+            else:
+                raise HTTPException(status_code=500, detail="Failed to retrieve updated agent")
+        else:
+            raise HTTPException(status_code=404, detail="Agent not found")
+    except Exception as e:
+        print(f"Error in update_agent: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.delete("/{agent_id}")
+async def delete_agent(agent_id: str):
+    """Delete an agent."""
+    try:
+        success = db_service.delete_document("agents", agent_id)
+        if success:
+            return {"message": "Agent deleted successfully"}
+        else:
+            raise HTTPException(status_code=404, detail="Agent not found")
+    except Exception as e:
+        print(f"Error in delete_agent: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))

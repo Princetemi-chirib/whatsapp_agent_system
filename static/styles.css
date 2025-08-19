@@ -23,37 +23,28 @@ body {
 .header {
     text-align: center;
     margin-bottom: 40px;
-    color: white;
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
 .logo {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px;
-    margin-bottom: 10px;
 }
 
 .logo-image {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid #ffd700;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-.logo h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
 
-.subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
-    font-weight: 300;
-}
 
 /* Main content */
 .main-content {
@@ -222,6 +213,42 @@ input::placeholder {
     color: #ff8c42;
 }
 
+/* Agents Controls */
+.agents-controls {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-box i {
+    position: absolute;
+    left: 12px;
+    color: #999;
+    z-index: 1;
+}
+
+.search-box input {
+    padding-left: 40px;
+    width: 100%;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-controls select {
+    flex: 1;
+    min-width: 120px;
+}
+
 .agents-grid {
     display: grid;
     gap: 15px;
@@ -233,6 +260,51 @@ input::placeholder {
     padding: 20px;
     border-left: 4px solid #ff8c42;
     transition: all 0.3s ease;
+    position: relative;
+}
+
+.agent-card .agent-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.agent-card:hover .agent-actions {
+    opacity: 1;
+}
+
+.agent-action-btn {
+    background: rgba(255, 140, 66, 0.1);
+    border: 1px solid #ff8c42;
+    color: #ff8c42;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+}
+
+.agent-action-btn:hover {
+    background: #ff8c42;
+    color: white;
+}
+
+.agent-action-btn.delete {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.agent-action-btn.delete:hover {
+    background: #dc3545;
+    color: white;
 }
 
 .agent-card:hover {
@@ -317,6 +389,14 @@ input::placeholder {
 
 .modal-header.error {
     background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+}
+
+.modal-header.edit {
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+}
+
+.edit-modal {
+    max-width: 500px;
 }
 
 .modal-header i {
