@@ -113,6 +113,9 @@ class JobService:
                 
                 success = db_service.update_document('jobs', job_id, update_data)
                 if success:
+                    # Get agent details for client notification
+                    agent_details = self.get_agent_details(agent_phone)
+                    
                     # Send confirmation to assigned agent
                     self.whatsapp_service.send_job_assigned_confirmation(
                         agent_phone,
@@ -121,6 +124,16 @@ class JobService:
                         job['inspection_date'],
                         job['inspection_time']
                     )
+                    
+                    # Send notification to client about assigned agent
+                    if job['client_details'].get('phone'):
+                        self.whatsapp_service.send_agent_assigned_to_client(
+                            job['client_details']['phone'],
+                            agent_details,
+                            job['property_details'],
+                            job['inspection_date'],
+                            job['inspection_time']
+                        )
                     
                     # Notify other agents that the job is taken
                     self.notify_other_agents_job_taken(job, agent_phone)
@@ -159,13 +172,26 @@ class JobService:
             
             success = db_service.update_document('jobs', job_id, update_data)
             if success:
-                # Send schedule confirmation
+                # Get agent details for client notification
+                agent_details = self.get_agent_details(job['assigned_agent'])
+                
+                # Send schedule confirmation to agent
                 self.whatsapp_service.send_schedule_confirmation(
                     job['assigned_agent'],
                     job['property_details'],
                     job['inspection_date'],
                     job['inspection_time']
                 )
+                
+                # Send notification to client about schedule confirmation
+                if job['client_details'].get('phone'):
+                    self.whatsapp_service.send_schedule_confirmed_to_client(
+                        job['client_details']['phone'],
+                        agent_details,
+                        job['property_details'],
+                        job['inspection_date'],
+                        job['inspection_time']
+                    )
                 
                 return {
                     "success": True,
@@ -192,11 +218,22 @@ class JobService:
             
             success = db_service.update_document('jobs', job_id, update_data)
             if success:
-                # Send start confirmation
+                # Get agent details for client notification
+                agent_details = self.get_agent_details(job['assigned_agent'])
+                
+                # Send start confirmation to agent
                 self.whatsapp_service.send_inspection_started_confirmation(
                     job['assigned_agent'],
                     job['property_details']
                 )
+                
+                # Send notification to client that inspection has started
+                if job['client_details'].get('phone'):
+                    self.whatsapp_service.send_inspection_started_to_client(
+                        job['client_details']['phone'],
+                        agent_details,
+                        job['property_details']
+                    )
                 
                 return {
                     "success": True,
@@ -223,11 +260,22 @@ class JobService:
             
             success = db_service.update_document('jobs', job_id, update_data)
             if success:
-                # Send completion confirmation
+                # Get agent details for client notification
+                agent_details = self.get_agent_details(job['assigned_agent'])
+                
+                # Send completion confirmation to agent
                 self.whatsapp_service.send_inspection_completed_confirmation(
                     job['assigned_agent'],
                     job['property_details']
                 )
+                
+                # Send notification to client that inspection is completed
+                if job['client_details'].get('phone'):
+                    self.whatsapp_service.send_inspection_completed_to_client(
+                        job['client_details']['phone'],
+                        agent_details,
+                        job['property_details']
+                    )
                 
                 return {
                     "success": True,
@@ -427,3 +475,41 @@ class JobService:
         except Exception as e:
             print(f"Error handling multiple property request: {str(e)}")
             return {"success": False, "error": str(e)}
+    
+    def get_agent_details(self, agent_phone: str) -> Dict:
+        """Get agent details by phone number."""
+        try:
+            agents = db_service.find_documents('agents', {'phone': agent_phone})
+            if agents:
+                agent = agents[0]
+                return {
+                    'name': agent.get('name', 'Unknown Agent'),
+                    'phone': agent.get('phone', agent_phone),
+                    'email': agent.get('email', 'N/A'),
+                    'rating': agent.get('rating', 'N/A'),
+                    'zone': agent.get('zone', 'N/A'),
+                    'experience_years': agent.get('experience_years', 'N/A'),
+                    'specializations': agent.get('specializations', [])
+                }
+            else:
+                # Return basic info if agent not found in database
+                return {
+                    'name': 'Unknown Agent',
+                    'phone': agent_phone,
+                    'email': 'N/A',
+                    'rating': 'N/A',
+                    'zone': 'N/A',
+                    'experience_years': 'N/A',
+                    'specializations': []
+                }
+        except Exception as e:
+            print(f"Error getting agent details: {str(e)}")
+            return {
+                'name': 'Unknown Agent',
+                'phone': agent_phone,
+                'email': 'N/A',
+                'rating': 'N/A',
+                'zone': 'N/A',
+                'experience_years': 'N/A',
+                'specializations': []
+            }

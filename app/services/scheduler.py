@@ -178,14 +178,15 @@ class SchedulerService:
             return []
     
     def _send_inspection_reminder(self, inspection_data: Dict):
-        """Send inspection reminder message."""
+        """Send inspection reminder message to both agent and client."""
         try:
-            phone_number = inspection_data.get('agent_phone')
-            if phone_number:
-                # Create a proper message for the reminder
-                property_details = inspection_data.get('property_details', {})
-                client_details = inspection_data.get('client_details', {})
-                
+            agent_phone = inspection_data.get('agent_phone')
+            client_phone = inspection_data.get('client_details', {}).get('phone')
+            property_details = inspection_data.get('property_details', {})
+            client_details = inspection_data.get('client_details', {})
+            
+            # Send reminder to agent
+            if agent_phone:
                 message = f"""
 🔔 INSPECTION REMINDER
 
@@ -201,23 +202,44 @@ Please prepare to start the inspection.
 Reply START when you begin the inspection.
                 """.strip()
                 
-                result = self.whatsapp_service.send_message(phone_number, message)
+                result = self.whatsapp_service.send_message(agent_phone, message)
                 if result['success']:
-                    print(f"Inspection reminder sent to {phone_number}")
+                    print(f"Inspection reminder sent to agent {agent_phone}")
                 else:
-                    print(f"Failed to send inspection reminder: {result['error']}")
+                    print(f"Failed to send inspection reminder to agent: {result['error']}")
+            
+            # Send reminder to client
+            if client_phone:
+                # Get agent details for client notification
+                from app.services.job_service import JobService
+                job_service = JobService()
+                agent_details = job_service.get_agent_details(agent_phone)
+                
+                result = self.whatsapp_service.send_inspection_reminder_to_client(
+                    client_phone,
+                    agent_details,
+                    property_details,
+                    inspection_data.get('inspection_date', 'N/A'),
+                    inspection_data.get('inspection_time', 'N/A')
+                )
+                if result['success']:
+                    print(f"Inspection reminder sent to client {client_phone}")
+                else:
+                    print(f"Failed to send inspection reminder to client: {result['error']}")
+                    
         except Exception as e:
             print(f"Error sending inspection reminder: {str(e)}")
     
     def _send_inspection_start_prompt(self, inspection_data: Dict):
-        """Send inspection start prompt message."""
+        """Send inspection start prompt message to both agent and client."""
         try:
-            phone_number = inspection_data.get('agent_phone')
-            if phone_number:
-                # Create a proper message for the start prompt
-                property_details = inspection_data.get('property_details', {})
-                client_details = inspection_data.get('client_details', {})
-                
+            agent_phone = inspection_data.get('agent_phone')
+            client_phone = inspection_data.get('client_details', {}).get('phone')
+            property_details = inspection_data.get('property_details', {})
+            client_details = inspection_data.get('client_details', {})
+            
+            # Send start prompt to agent
+            if agent_phone:
                 message = f"""
 🚀 INSPECTION START TIME!
 
@@ -233,11 +255,29 @@ Reply START to begin the inspection process.
 Reply COMPLETE when you finish the inspection.
                 """.strip()
                 
-                result = self.whatsapp_service.send_message(phone_number, message)
+                result = self.whatsapp_service.send_message(agent_phone, message)
                 if result['success']:
-                    print(f"Inspection start prompt sent to {phone_number}")
+                    print(f"Inspection start prompt sent to agent {agent_phone}")
                 else:
-                    print(f"Failed to send inspection start prompt: {result['error']}")
+                    print(f"Failed to send inspection start prompt to agent: {result['error']}")
+            
+            # Send start notification to client
+            if client_phone:
+                # Get agent details for client notification
+                from app.services.job_service import JobService
+                job_service = JobService()
+                agent_details = job_service.get_agent_details(agent_phone)
+                
+                result = self.whatsapp_service.send_inspection_started_to_client(
+                    client_phone,
+                    agent_details,
+                    property_details
+                )
+                if result['success']:
+                    print(f"Inspection start notification sent to client {client_phone}")
+                else:
+                    print(f"Failed to send inspection start notification to client: {result['error']}")
+                    
         except Exception as e:
             print(f"Error sending inspection start prompt: {str(e)}")
     

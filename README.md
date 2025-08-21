@@ -53,6 +53,8 @@ whatsapp_agent_system/
 - **Webhook Processing**: Real-time handling of agent responses via Twilio webhooks
 - **Multiple Property Support**: Continuity for clients booking multiple properties
 - **Real-time Status Updates**: Live job status tracking and notifications
+- **Client Notifications**: Automatic WhatsApp notifications to clients at every step
+- **Agent Details Sharing**: Clients receive agent contact information and credentials
 
 ## System Workflow
 
@@ -63,18 +65,26 @@ whatsapp_agent_system/
 ### 2. Agent Assignment
 - All agents receive WhatsApp message with property details
 - First agent to reply "YES" gets assigned the job
+- **Client receives notification with agent details** (name, phone, email, rating, zone)
 - Other agents receive "Job already assigned" notification
 
 ### 3. Schedule Confirmation
 - Assigned agent receives property and client details
 - Agent confirms schedule by replying "CONFIRM"
+- **Client receives schedule confirmation notification**
 - System schedules inspection reminder
 
 ### 4. Inspection Reminder
-- System sends reminder 30 minutes before scheduled inspection
-- Agent can mark inspection as completed by replying "COMPLETE"
+- System sends reminder 30 minutes before scheduled inspection to both agent and client
+- **Client receives reminder with agent contact details**
+- Agent can start inspection by replying "START"
 
-### 5. Multiple Properties
+### 5. Inspection Process
+- **Client receives notification when inspection starts**
+- Agent conducts inspection and replies "COMPLETE" when finished
+- **Client receives completion notification**
+
+### 6. Multiple Properties
 - If client books additional properties, same agent gets priority notification
 - Maintains continuity of service for existing clients
 

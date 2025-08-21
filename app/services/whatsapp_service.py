@@ -228,3 +228,108 @@ Have a great day!
         """.strip()
         
         return self.send_message(agent_number, message)
+
+    # New methods for client notifications
+    
+    def send_agent_assigned_to_client(self, client_phone: str, agent_details: Dict, property_details: Dict, inspection_date: str, inspection_time: str) -> Dict:
+        """Send notification to client when agent is assigned."""
+        message = f"""
+✅ Agent Assigned!
+
+Great news! An agent has been assigned to your inspection.
+
+Property: {property_details.get('title', 'N/A')}
+Address: {property_details.get('address', 'N/A')}
+
+Agent Details:
+👤 Name: {agent_details.get('name', 'N/A')}
+📞 Phone: {agent_details.get('phone', 'N/A')}
+📧 Email: {agent_details.get('email', 'N/A')}
+⭐ Rating: {agent_details.get('rating', 'N/A')}/5
+🏢 Zone: {agent_details.get('zone', 'N/A')}
+
+Inspection Date: {inspection_date}
+Inspection Time: {inspection_time}
+
+The agent will contact you shortly to confirm the schedule.
+        """.strip()
+        
+        return self.send_message(client_phone, message)
+    
+    def send_schedule_confirmed_to_client(self, client_phone: str, agent_details: Dict, property_details: Dict, inspection_date: str, inspection_time: str) -> Dict:
+        """Send notification to client when agent confirms schedule."""
+        message = f"""
+📅 Schedule Confirmed!
+
+Your inspection schedule has been confirmed by the agent.
+
+Property: {property_details.get('title', 'N/A')}
+Address: {property_details.get('address', 'N/A')}
+
+Agent: {agent_details.get('name', 'N/A')}
+Phone: {agent_details.get('phone', 'N/A')}
+
+Inspection Date: {inspection_date}
+Inspection Time: {inspection_time}
+
+You will receive a reminder 30 minutes before the inspection.
+        """.strip()
+        
+        return self.send_message(client_phone, message)
+    
+    def send_inspection_reminder_to_client(self, client_phone: str, agent_details: Dict, property_details: Dict, inspection_date: str, inspection_time: str) -> Dict:
+        """Send inspection reminder to client."""
+        message = f"""
+🔔 Inspection Reminder
+
+Your inspection is scheduled to start in 30 minutes!
+
+Property: {property_details.get('title', 'N/A')}
+Address: {property_details.get('address', 'N/A')}
+
+Agent: {agent_details.get('name', 'N/A')}
+Phone: {agent_details.get('phone', 'N/A')}
+
+Inspection Date: {inspection_date}
+Inspection Time: {inspection_time}
+
+Please ensure someone is available at the property for the inspection.
+        """.strip()
+        
+        return self.send_message(client_phone, message)
+    
+    def send_inspection_started_to_client(self, client_phone: str, agent_details: Dict, property_details: Dict) -> Dict:
+        """Send notification to client when inspection starts."""
+        message = f"""
+🚀 Inspection Started!
+
+Your inspection has begun!
+
+Property: {property_details.get('title', 'N/A')}
+Address: {property_details.get('address', 'N/A')}
+
+Agent: {agent_details.get('name', 'N/A')}
+Phone: {agent_details.get('phone', 'N/A')}
+
+The agent is now conducting the inspection. You will be notified when it's completed.
+        """.strip()
+        
+        return self.send_message(client_phone, message)
+    
+    def send_inspection_completed_to_client(self, client_phone: str, agent_details: Dict, property_details: Dict) -> Dict:
+        """Send notification to client when inspection is completed."""
+        message = f"""
+✅ Inspection Completed!
+
+Your inspection has been completed successfully!
+
+Property: {property_details.get('title', 'N/A')}
+Address: {property_details.get('address', 'N/A')}
+
+Agent: {agent_details.get('name', 'N/A')}
+Phone: {agent_details.get('phone', 'N/A')}
+
+The inspection report will be available shortly. Thank you for choosing our service!
+        """.strip()
+        
+        return self.send_message(client_phone, message)
